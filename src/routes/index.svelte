@@ -9,7 +9,9 @@
 
 <script>
   import words from '../words';
+  import { onMount } from 'svelte';
 
+  let mounted = false;
   let matches = [];
   let hints = [];
   let letters = '';
@@ -59,6 +61,12 @@
 
     return [required].concat(distinct.sort());
   }
+
+  onMount(() => {
+    resetAll();
+
+    mounted = true;
+  });
 </script>
 
 <svelte:head>
@@ -69,17 +77,21 @@
 <p>A simple tool to help with (or cheat at) <a href="https://www.nytimes.com/puzzles/spelling-bee">NYT's spelling bee puzzle</a>.</p>
 <p>Built to play with <a href="https://sapper.svelte.dev">Sapper</a>. View the <a href="https://github.com/elliotf/spelling-bee-cheater">source code</a></p>
 
-<p>Enter letters for which you'd like hints. The first letter will be required to exist in all words</p>
-<input bind:value={letters} type="text" on:keyup={resetAll}/>
-<button {disabled} on:click={showOneWord}>Show one word</button>
-<button {disabled} on:click={showAllWords}>Show all words</button>
-<br />
-{#if letters.length}
-  <p>{hints.length + matches.length} words found for letters "{distinct_letters}"</p>
+{#if mounted}
+  <p>Enter letters for which you'd like hints. The first letter will be required to exist in all words</p>
+  <input bind:value={letters} type="text" on:keyup={resetAll}/>
+  <button {disabled} on:click={showOneWord}>Show one word</button>
+  <button {disabled} on:click={showAllWords}>Show all words</button>
+  <br />
+  {#if letters.length}
+    <p>{hints.length + matches.length} words found for letters "{distinct_letters}"</p>
+  {/if}
+  <br />
+  <div class="word-list">
+  {#each hints as hint, i}
+    <div>{i + 1}. {hint}</div>
+  {/each}
+  </div>
+{:else}
+  <h2>Loading...</h2>
 {/if}
-<br />
-<div class="word-list">
-{#each hints as hint, i}
-  <div>{i + 1}. {hint}</div>
-{/each}
-</div>
