@@ -1,11 +1,18 @@
 const fs = require('fs').promises;
 const path = require('path');
 const dict_file = '/usr/share/dict/words';
+const crypto = require('crypto');
+
+function hash(str) {
+  return crypto.createHash('sha1').update(str).digest('base64');
+}
 
 async function main() {
   const raw = await fs.readFile(dict_file)
 
   const char_only_re = /^[A-Za-z]{4,}$/;
+
+  const hashes = {};
 
   const words = raw
     .toString('utf8')
@@ -20,14 +27,16 @@ async function main() {
     .sort((a,b) => {
       // sort shortest to longest
       const difference = a.length - b.length;
-      if (difference != 0) {
+      if (difference !== 0) {
         return difference;
       }
 
-      // for same length words, randomize via a random number of -1, 0, and +1
-      const tribool = Math.floor(Math.random() * 3) - 1;
+      const a_hash = hashes[a] = hashes[a] || hash(a);
+      const b_hash = hashes[b] = hashes[b] || hash(b);
 
-      return tribool;
+      // for same length words, "randomize" by sorting their hashes
+      // uses hashes instead of real random so it's stable from run to run
+      return a_hash.localeCompare(b_hash);
     });
 
   const base_dir = path.dirname(__filename);

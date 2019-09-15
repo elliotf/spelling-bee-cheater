@@ -6,7 +6,7 @@
     "dev": "sapper dev",
     "build": "sapper build --legacy",
     "makewords": "node bin/build-word-list.js",
-    "makestatic": "npx sapper export --basepath 'spelling-bee-cheater' && rsync -av --progress --delete __sapper__/export/ docs/ && git add docs",
+    "makestatic": "npm run makewords && npx sapper export && rsync -av --progress --delete __sapper__/export/ docs/ && git add docs",
     "export": "sapper export --legacy",
     "start": "node __sapper__/build",
     "cy:run": "cypress run",
